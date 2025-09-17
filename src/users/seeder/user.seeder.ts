@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Seeder, DataFactory } from 'nestjs-seeder';
+import { Seeder } from 'nestjs-seeder';
 import { InjectModel } from '@nestjs/mongoose';
 import { User } from '../entities/user.entity';
 import { Model } from 'mongoose';
@@ -22,14 +22,21 @@ export class UserSeeder implements Seeder {
         phone: '01500000000',
         password: await bcrypt.hash('123456', 10),
         isSuperAdmin: true,
+        type: 'super_admin',
       });
       await superAdmin.save();
     }
-    const users = DataFactory.createForClass(User).generate(50, {
-      password: async () => await bcrypt.hash('123456', 10),
-    });
+    const users = Array.from({ length: 50 }).map((_, i) => ({
+      name: `User${i + 1}`,
+      email: `user${i + 1}@example.com`,
+      phone: `01500000${String(100 + i).slice(-3)}`,
+      password: bcrypt.hashSync('123456', 10),
+      type: 'user',
+    }));
+
     return this.userModel.insertMany(users);
   }
+
   async drop(): Promise<any> {
     return this.userModel.deleteMany({});
   }

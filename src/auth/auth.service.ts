@@ -1,26 +1,55 @@
-import { Injectable } from '@nestjs/common';
-import { CreateAuthDto } from './dto/create-auth.dto';
-import { UpdateAuthDto } from './dto/update-auth.dto';
+import { BadRequestException, Injectable } from '@nestjs/common';
+import { SignupDto } from './dto/signup.dto';
+import { User } from '../users/entities/user.entity';
+import { HydratedDocument, Model } from 'mongoose';
+import { InjectModel } from '@nestjs/mongoose';
+import { JwtService } from '@nestjs/jwt';
+import * as bcrypt from 'bcrypt';
+import configuration from '../config/configuration';
+import { UserResponseDto } from './dto/auth-user-response.dto';
 
 @Injectable()
 export class AuthService {
-  create(createAuthDto: CreateAuthDto) {
-    return 'This action adds a new auth';
+  constructor(
+    @InjectModel(User.name) private readonly userModel: Model<User>,
+    private readonly jwtService: JwtService,
+  ) {}
+
+  async signUp(signupDto: SignupDto) {
+    const user = await this.userModel.findOne({
+      $or: [{ email: signupDto.email }, { phone: signupDto.phone }],
+    });
+    if (user) {
+      throw new BadRequestException('User already exists');
+    }
+    const hashedPassword = await bcrypt.hash(signupDto.password, 10);
+    const newUser = new this.userModel({
+      ...signupDto,
+      password: hashedPassword,
+    });
+    await newUser.save();
+    const token = this.generateToken(newUser._id?.toString());
+    return {
+      message: 'User created successfully',
+      token,
+      user: this.formatUserData(newUser),
+    };
   }
 
-  findAll() {
-    return `This action returns all auth`;
+  generateToken(userId: string | unknown) {
+    return this.jwtService.sign(
+      { userId },
+      { expiresIn: configuration().jwt.expiresIn },
+    );
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} auth`;
-  }
-
-  update(id: number, updateAuthDto: UpdateAuthDto) {
-    return `This action updates a #${id} auth`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} auth`;
+  private formatUserData(userDoc: HydratedDocument<User>): UserResponseDto {
+    const obj = userDoc.toObject() as User & {
+      createdAt?: Date;
+      updatedAt?: Date;
+    };
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { password, createdAt, updatedAt, ...rest } = obj;
+    return rest as UserResponseDto;
   }
 }
