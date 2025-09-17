@@ -7,6 +7,7 @@ import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import configuration from '../config/configuration';
 import { UserResponseDto } from './dto/auth-user-response.dto';
+import { LoginDto } from './dto/login.dto';
 
 @Injectable()
 export class AuthService {
@@ -34,6 +35,37 @@ export class AuthService {
       token,
       user: this.formatUserData(newUser),
     };
+  }
+
+  async login(LoginDto: LoginDto) {
+    const user = await this.userModel
+      .findOne({ email: LoginDto.email })
+      .populate('roles');
+    if (!user) {
+      throw new BadRequestException('User not found');
+    }
+    const isMatch = await bcrypt.compare(LoginDto.password, user.password);
+    if (!isMatch) {
+      throw new BadRequestException('Invalid credentials');
+    }
+    const token = this.generateToken(user._id?.toString());
+    return {
+      message: 'Login successful',
+      token,
+      user: this.formatUserData(user),
+    };
+  }
+
+  logout() {
+    return { message: 'Logout successful' };
+  }
+
+  async getProfile(userId: string) {
+    const user = await this.userModel.findById(userId).populate('roles');
+    if (!user) {
+      throw new BadRequestException('User not found');
+    }
+    return this.formatUserData(user);
   }
 
   generateToken(userId: string | unknown) {
