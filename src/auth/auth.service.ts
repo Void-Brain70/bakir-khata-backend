@@ -74,7 +74,6 @@ export class AuthService {
       { expiresIn: configuration().jwt.expiresIn },
     );
   }
-
   private formatUserData(userDoc: HydratedDocument<User>): UserResponseDto {
     const obj = userDoc.toObject() as User & {
       createdAt?: Date;
