@@ -20,7 +20,6 @@ export class AuthController {
   async login(@Body() LoginDto: LoginDto) {
     return this.authService.login(LoginDto);
   }
-
   @HttpCode(HttpStatus.OK)
   @Post('logout')
   logout() {
