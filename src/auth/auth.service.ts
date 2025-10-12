@@ -17,12 +17,20 @@ export class AuthService {
   ) {}
 
   async signUp(signupDto: SignupDto) {
-    const user = await this.userModel.findOne({
-      $or: [{ email: signupDto.email }, { phone: signupDto.phone }],
+    const existingEmail = await this.userModel.findOne({
+      email: signupDto.email,
     });
-    if (user) {
-      throw new BadRequestException('User already exists');
+    if (existingEmail) {
+      throw new BadRequestException('Email already exists');
     }
+
+    const existingPhone = await this.userModel.findOne({
+      phone: signupDto.phone,
+    });
+    if (existingPhone) {
+      throw new BadRequestException('Phone already exists');
+    }
+
     const hashedPassword = await bcrypt.hash(signupDto.password, 10);
     const newUser = new this.userModel({
       ...signupDto,
@@ -74,6 +82,7 @@ export class AuthService {
       { expiresIn: configuration().jwt.expiresIn },
     );
   }
+
   private formatUserData(userDoc: HydratedDocument<User>): UserResponseDto {
     const obj = userDoc.toObject() as User & {
       createdAt?: Date;
