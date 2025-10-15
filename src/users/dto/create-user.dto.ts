@@ -54,7 +54,7 @@ export class CreateUserDto {
 
   @IsNotEmpty()
   @IsEnum(UserTypeEnum)
-  userType?: string;
+  readonly type: UserTypeEnum = UserTypeEnum.USER;
 
   @IsOptional()
   @IsString()
