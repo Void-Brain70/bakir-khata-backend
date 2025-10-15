@@ -7,6 +7,8 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { JwtModule } from '@nestjs/jwt';
+import { CacheModule } from '@nestjs/cache-manager';
+import { redisStore } from 'cache-manager-redis-yet';
 
 @Module({
   imports: [
@@ -29,6 +31,11 @@ import { JwtModule } from '@nestjs/jwt';
       }),
       global: true,
       inject: [ConfigService],
+    }),
+    CacheModule.register({
+      isGlobal: true,
+      store: redisStore,
+      ttl: 30 * 60 * 1000, // 30 minutes in milliseconds
     }),
     UsersModule,
     AuthModule,

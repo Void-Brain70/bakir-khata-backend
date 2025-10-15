@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { SignupDto } from './dto/signup.dto';
 import { User } from '../users/entities/user.entity';
 import { HydratedDocument, Model } from 'mongoose';
@@ -10,11 +10,20 @@ import { UserResponseDto } from './dto/auth-user-response.dto';
 import { LoginDto } from './dto/login.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import type { Cache } from 'cache-manager';
+import { generateOTP, setRandomNumber } from '../utils/helper';
+import { VerifyOtpDto } from './dto/verify-otp.dto';
+import { ForgotPasswordDto } from './dto/forgot-password.dto';
+import { ResetToken } from './entities/reset-token.schema';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 
 @Injectable()
 export class AuthService {
   constructor(
     @InjectModel(User.name) private readonly userModel: Model<User>,
+    @InjectModel(ResetToken.name) private resetTokenModel: Model<ResetToken>,
+    @Inject(CACHE_MANAGER) private cacheManager: Cache,
     private readonly jwtService: JwtService,
   ) {}
 
@@ -46,9 +55,9 @@ export class AuthService {
       user: this.formatUserData(newUser),
     };
   }
+
   async login(LoginDto: LoginDto) {
-    const user = await this.userModel
-      .findOne({ email: LoginDto.email })
+    const user = await this.userModel.findOne({ email: LoginDto.email });
     if (!user) {
       throw new BadRequestException('User not found');
     }
@@ -63,9 +72,11 @@ export class AuthService {
       user: this.formatUserData(user),
     };
   }
+
   logout() {
     return { message: 'Logout successful' };
   }
+
   async getProfile(userId: string) {
     const user = await this.userModel.findById(userId);
     if (!user) {
@@ -73,6 +84,7 @@ export class AuthService {
     }
     return this.formatUserData(user);
   }
+
   async updateProfile(userId: string, updateProfileDto: UpdateProfileDto) {
     const user = await this.userModel.findById(userId);
     if (!user) {
@@ -86,6 +98,7 @@ export class AuthService {
     await user.save();
     return this.formatUserData(user);
   }
+
   async changePassword(userId: string, changePasswordDto: ChangePasswordDto) {
     const user = await this.userModel.findById(userId);
     if (!user) {
@@ -105,12 +118,140 @@ export class AuthService {
     );
     return { message: 'Password changed successfully' };
   }
+
+  async resendOTP(userId: string) {
+    const user = await this.userModel.findById(userId);
+    if (!user) {
+      throw new BadRequestException('User not found');
+    }
+    if (user.emailVerifiedAt) {
+      throw new BadRequestException('User already verified');
+    }
+    //check if the otp is already cached
+    const cachedOtp = (await this.cacheManager.get(`otp:${user.email}`)) as {
+      otp: string;
+      validTill: Date;
+    } | null;
+    console.log(`Cached OTP for ${user.email} Resend OTP Method :`, cachedOtp);
+    if (cachedOtp && new Date(cachedOtp.validTill) > new Date()) {
+      return {
+        status: 'success',
+        message: 'OTP resent successfully',
+        validTill: cachedOtp.validTill,
+      };
+    } else {
+      const otp = generateOTP() as { otp: string; validTill: Date };
+      console.log('Generated OTP for Resend OTP Method :', otp);
+      // await this.authEmailQueue.add('send-otp-email', {
+      //   email: user.email,
+      //   otp: otp,
+      // });
+      return {
+        status: 'success',
+        message: 'OTP sent successfully',
+        validTill: otp.validTill,
+      };
+    }
+  }
+
+  async verifyOTP(userId: string, verifyOtpDto: VerifyOtpDto) {
+    const user = await this.userModel.findById(userId);
+    if (!user) {
+      throw new BadRequestException('User not found');
+    }
+    //check if the user is already verified
+    if (user.emailVerifiedAt) {
+      throw new BadRequestException('User already verified');
+    }
+    //get the otp from cache
+    const cachedOtp = (await this.cacheManager.get(`otp:${user.email}`)) as {
+      otp: string;
+      validTill: Date;
+    } | null;
+    console.log(`Cached OTP for ${user.email} Verify OTP Method :`, cachedOtp);
+    if (!cachedOtp) {
+      throw new BadRequestException('OTP expired. Please request a new one.');
+    }
+    if (cachedOtp.otp !== verifyOtpDto.otp) {
+      throw new BadRequestException('Invalid OTP');
+    }
+    user.emailVerifiedAt = new Date();
+    await user.save();
+    await this.cacheManager.del(`otp:${user.email}`);
+    return {
+      status: 'success',
+      message: 'OTP verified successfully',
+      user: { ...user.toObject(), password: undefined },
+    };
+  }
+
+  async forgotPassword(forgotPasswordDto: ForgotPasswordDto) {
+    const user = await this.userModel.findOne({
+      email: forgotPasswordDto.email,
+    });
+    if (!user) {
+      throw new BadRequestException('User not found');
+    }
+    const resetToken = setRandomNumber(64);
+    const expiryDate = new Date();
+    expiryDate.setHours(expiryDate.getHours() + 1);
+    await this.resetTokenModel.deleteMany({ user: user._id });
+    await this.resetTokenModel.create({
+      user: user._id,
+      token: resetToken,
+      expiresAt: expiryDate,
+    });
+    return {
+      status: 'success',
+      message: 'Password reset link sent to your email',
+    };
+  }
+
+  async verifyResetToken(resetToken: string) {
+    const token = await this.resetTokenModel.findOne({
+      token: resetToken,
+      expiryDate: { $gt: new Date() },
+    });
+    if (!token) {
+      throw new BadRequestException('Invalid or expired reset token');
+    }
+    return {
+      status: 'success',
+      message: 'Reset token is valid',
+    };
+  }
+
+  async resetPassword(resetPasswordDto: ResetPasswordDto) {
+    const resetToken = await this.resetTokenModel.findOne({
+      token: resetPasswordDto.resetToken,
+      expiresAt: { $gt: new Date() },
+    });
+    if (!resetToken) {
+      throw new BadRequestException('Invalid or expired reset token');
+    }
+    const user = await this.userModel.findById(resetToken.user);
+    if (!user) {
+      throw new BadRequestException('User not found');
+    }
+    const hashedPassword = await bcrypt.hash(resetPasswordDto.newPassword, 10);
+    await this.userModel.updateOne(
+      { _id: user._id },
+      { password: hashedPassword },
+    );
+    await this.resetTokenModel.deleteOne({ _id: resetToken._id });
+    return {
+      status: 'success',
+      message: 'Password reset successfully',
+    };
+  }
+
   generateToken(userId: string | unknown) {
     return this.jwtService.sign(
       { userId },
       { expiresIn: configuration().jwt.expiresIn },
     );
   }
+
   private formatUserData(userDoc: HydratedDocument<User>): UserResponseDto {
     const obj = userDoc.toObject() as User & {
       createdAt?: Date;
