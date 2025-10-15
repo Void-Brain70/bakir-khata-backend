@@ -6,6 +6,7 @@ import {
   HttpStatus,
   Get,
   Put,
+  UseGuards,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { SignupDto } from './dto/signup.dto';
@@ -13,6 +14,7 @@ import { LoginDto } from './dto/login.dto';
 import { UserId } from '../decorators/userId.decorator';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
+import { AuthGuard } from '../guards/auth.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -33,11 +35,13 @@ export class AuthController {
   logout() {
     return this.authService.logout();
   }
+  @UseGuards(AuthGuard)
   @HttpCode(HttpStatus.OK)
   @Get('profile')
   getProfile(@UserId() userId: string) {
     return this.authService.getProfile(userId);
   }
+  @UseGuards(AuthGuard)
   @HttpCode(HttpStatus.OK)
   @Put('profile')
   updateProfile(
@@ -46,6 +50,7 @@ export class AuthController {
   ) {
     return this.authService.updateProfile(userId, updateProfileDto);
   }
+  @UseGuards(AuthGuard)
   @HttpCode(HttpStatus.OK)
   @Put('change-password')
   changePassword(

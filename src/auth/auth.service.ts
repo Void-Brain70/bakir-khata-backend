@@ -49,7 +49,6 @@ export class AuthService {
   async login(LoginDto: LoginDto) {
     const user = await this.userModel
       .findOne({ email: LoginDto.email })
-      .populate('roles');
     if (!user) {
       throw new BadRequestException('User not found');
     }
@@ -68,7 +67,7 @@ export class AuthService {
     return { message: 'Logout successful' };
   }
   async getProfile(userId: string) {
-    const user = await this.userModel.findById(userId).populate('roles');
+    const user = await this.userModel.findById(userId);
     if (!user) {
       throw new BadRequestException('User not found');
     }
