@@ -1,4 +1,10 @@
-import { BadRequestException, Inject, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Inject,
+  Injectable,
+  NotFoundException,
+  UnauthorizedException
+} from '@nestjs/common';
 import { SignupDto } from './dto/signup.dto';
 import { User } from '../users/entities/user.entity';
 import { HydratedDocument, Model } from 'mongoose';
@@ -141,6 +147,7 @@ export class AuthService {
       };
     } else {
       const otp = generateOTP() as { otp: string; validTill: Date };
+      await this.cacheManager.set(`otp:${user.email}`, otp, 3 * 60 * 1000);
       console.log('Generated OTP for Resend OTP Method :', otp);
       // await this.authEmailQueue.add('send-otp-email', {
       //   email: user.email,
@@ -190,21 +197,29 @@ export class AuthService {
       email: forgotPasswordDto.email,
     });
     if (!user) {
-      throw new BadRequestException('User not found');
+      throw new NotFoundException('User not found');
     }
     const resetToken = setRandomNumber(64);
     const expiryDate = new Date();
-    expiryDate.setHours(expiryDate.getHours() + 1);
+    expiryDate.setHours(expiryDate.getHours() + 1); // Token valid for 1 hour
+    //delete any existing reset token for the user
     await this.resetTokenModel.deleteMany({ user: user._id });
     await this.resetTokenModel.create({
-      user: user._id,
       token: resetToken,
-      expiresAt: expiryDate,
+      user: user._id,
+      expiryDate: expiryDate,
     });
-    return {
-      status: 'success',
-      message: 'Password reset link sent to your email',
-    };
+    // Add the reset token to a queue for sending email
+    // await this.authEmailQueue.add('send-reset-email', {
+    //   email: forgotPasswordDto.email,
+    //   resetToken: resetToken,
+    // });
+    console.log(
+      `Password reset link for ${forgotPasswordDto.email}: Reset Token ${resetToken}`,
+    );
+    console.log();
+
+    return { message: 'Password reset link sent to your email' };
   }
 
   async verifyResetToken(resetToken: string) {
@@ -224,25 +239,25 @@ export class AuthService {
   async resetPassword(resetPasswordDto: ResetPasswordDto) {
     const resetToken = await this.resetTokenModel.findOne({
       token: resetPasswordDto.resetToken,
-      expiresAt: { $gt: new Date() },
+      expiryDate: { $gt: new Date() }, // Check if token is not expired
     });
     if (!resetToken) {
-      throw new BadRequestException('Invalid or expired reset token');
+      throw new UnauthorizedException('Invalid or expired reset token');
     }
+
     const user = await this.userModel.findById(resetToken.user);
     if (!user) {
-      throw new BadRequestException('User not found');
+      throw new NotFoundException('User not found');
     }
+
     const hashedPassword = await bcrypt.hash(resetPasswordDto.newPassword, 10);
     await this.userModel.updateOne(
       { _id: user._id },
       { password: hashedPassword },
     );
     await this.resetTokenModel.deleteOne({ _id: resetToken._id });
-    return {
-      status: 'success',
-      message: 'Password reset successfully',
-    };
+
+    return { message: 'Password reset successfully' };
   }
 
   generateToken(userId: string | unknown) {
