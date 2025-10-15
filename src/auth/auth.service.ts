@@ -3,7 +3,7 @@ import {
   Inject,
   Injectable,
   NotFoundException,
-  UnauthorizedException
+  UnauthorizedException,
 } from '@nestjs/common';
 import { SignupDto } from './dto/signup.dto';
 import { User } from '../users/entities/user.entity';
