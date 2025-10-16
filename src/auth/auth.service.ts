@@ -23,6 +23,10 @@ import { VerifyOtpDto } from './dto/verify-otp.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetToken } from './entities/reset-token.schema';
 import { ResetPasswordDto } from './dto/reset-password.dto';
+import { UserCreatedEvent } from './events/user-created';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { Queue } from 'bullmq';
+import { InjectQueue } from '@nestjs/bullmq';
 
 @Injectable()
 export class AuthService {
@@ -30,7 +34,10 @@ export class AuthService {
     @InjectModel(User.name) private readonly userModel: Model<User>,
     @InjectModel(ResetToken.name) private resetTokenModel: Model<ResetToken>,
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
+    @InjectQueue('bakir-khata-auth-email')
+    private readonly authEmailQueue: Queue,
     private readonly jwtService: JwtService,
+    private eventEmitter: EventEmitter2,
   ) {}
 
   async signUp(signupDto: SignupDto) {
@@ -54,6 +61,16 @@ export class AuthService {
       password: hashedPassword,
     });
     await newUser.save();
+
+    const userCreatedEvent = new UserCreatedEvent();
+    userCreatedEvent.userId = newUser._id?.toString() as string;
+    userCreatedEvent.name = newUser.name;
+    userCreatedEvent.email = newUser.email;
+    userCreatedEvent.password = signupDto.password;
+    userCreatedEvent.type = newUser.type;
+
+    this.eventEmitter.emit('user.created', userCreatedEvent);
+
     const token = this.generateToken(newUser._id?.toString());
     return {
       message: 'User created successfully',
@@ -149,10 +166,11 @@ export class AuthService {
       const otp = generateOTP() as { otp: string; validTill: Date };
       await this.cacheManager.set(`otp:${user.email}`, otp, 3 * 60 * 1000);
       console.log('Generated OTP for Resend OTP Method :', otp);
-      // await this.authEmailQueue.add('send-otp-email', {
-      //   email: user.email,
-      //   otp: otp,
-      // });
+      await this.authEmailQueue.add('send-otp-email', {
+        name: user.name,
+        email: user.email,
+        otp: otp,
+      });
       return {
         status: 'success',
         message: 'OTP sent successfully',
@@ -210,10 +228,10 @@ export class AuthService {
       expiryDate: expiryDate,
     });
     // Add the reset token to a queue for sending email
-    // await this.authEmailQueue.add('send-reset-email', {
-    //   email: forgotPasswordDto.email,
-    //   resetToken: resetToken,
-    // });
+    await this.authEmailQueue.add('send-reset-email', {
+      email: forgotPasswordDto.email,
+      resetToken: resetToken,
+    });
     console.log(
       `Password reset link for ${forgotPasswordDto.email}: Reset Token ${resetToken}`,
     );

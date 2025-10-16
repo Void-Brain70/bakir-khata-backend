@@ -10,6 +10,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { CacheModule } from '@nestjs/cache-manager';
 import { redisStore } from 'cache-manager-redis-yet';
 import { EventEmitterModule } from '@nestjs/event-emitter';
+import { BullModule } from '@nestjs/bullmq';
 
 @Module({
   imports: [
@@ -39,6 +40,18 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
       ttl: 30 * 60 * 1000, // 30 minutes in milliseconds
     }),
     EventEmitterModule.forRoot(),
+    BullModule.forRoot({
+      connection: {
+        host: 'localhost',
+        port: 6379,
+      },
+      defaultJobOptions: {
+        attempts: 3,
+        removeOnComplete: 1000,
+        removeOnFail: 3000,
+        backoff: 5000,
+      },
+    }),
     UsersModule,
     AuthModule,
   ],

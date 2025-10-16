@@ -1,22 +1,25 @@
 import { Injectable } from '@nestjs/common';
 import * as nodemailer from 'nodemailer';
 import configuration from '../config/configuration';
+import { ConfigService } from '@nestjs/config';
+import SMTPTransport from 'nodemailer/lib/smtp-transport';
 
 @Injectable()
 export class MailService {
   private transporter: nodemailer.Transporter;
-
-  constructor() {
-    this.transporter = nodemailer.createTransport({
-      host: configuration().mail.host ?? 'sandbox.smtp.mailtrap.io',
-      port: configuration().mail.port ?? 587,
+  constructor(private readonly configService: ConfigService) {
+    const transportOptions: SMTPTransport.Options = {
+      host: this.configService.get<string>('mail.host') ?? 'smtp.example.com',
+      port: parseInt(this.configService.get<string>('mail.port') ?? '587'),
+      secure: false,
       auth: {
-        user: configuration().mail.user ?? '2719b71ae1e61b',
-        pass: configuration().mail.pass ?? 'f53d10d0753a60',
+        user: this.configService.get<string>('mail.user'),
+        pass: this.configService.get<string>('mail.pass'),
       },
-    });
-  }
+    };
 
+    this.transporter = nodemailer.createTransport(transportOptions);
+  }
   async sendMail(to: string, subject: string, html: string) {
     const mailOptions = {
       from: configuration().app.name,

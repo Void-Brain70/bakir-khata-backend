@@ -24,6 +24,7 @@
   "dependencies": {
     "@faker-js/faker": "^10.0.0",
     "@nestjs-modules/mailer": "^2.0.2",
+    "@nestjs/bullmq": "^11.0.4",
     "@nestjs/cache-manager": "^3.0.1",
     "@nestjs/common": "^11.0.1",
     "@nestjs/config": "^4.0.2",
@@ -35,6 +36,7 @@
     "@nestjs/platform-express": "^11.0.1",
     "@types/nodemailer": "^7.0.2",
     "bcrypt": "^6.0.0",
+    "bullmq": "^5.61.0",
     "cache-manager": "^7.2.4",
     "cache-manager-redis-yet": "^5.1.5",
     "class-transformer": "^0.5.1",
