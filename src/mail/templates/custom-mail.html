@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>{{subject}}</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      padding: 40px 20px;
+      margin: 0;
+      line-height: 1.6;
+    }
+    .email-wrapper {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    .email-container {
+      background: #ffffff;
+      border-radius: 16px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      overflow: hidden;
+    }
+    .email-header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      padding: 40px 30px;
+      text-align: center;
+    }
+    .email-header h1 {
+      color: #ffffff;
+      font-size: 28px;
+      font-weight: 700;
+      margin: 0;
+      letter-spacing: -0.5px;
+    }
+    .email-body {
+      padding: 40px 30px;
+    }
+    .email-body p {
+      color: #4a5568;
+      font-size: 16px;
+      line-height: 1.8;
+      margin-bottom: 24px;
+    }
+    .button-wrapper {
+      text-align: center;
+      margin-top: 32px;
+    }
+    .button {
+      display: inline-block;
+      padding: 16px 40px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #ffffff;
+      text-decoration: none;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 16px;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    }
+    .button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+    }
+    .email-footer {
+      background: #f7fafc;
+      padding: 30px;
+      text-align: center;
+      border-top: 1px solid #e2e8f0;
+    }
+    .email-footer p {
+      color: #718096;
+      font-size: 14px;
+      margin: 0;
+    }
+    @media only screen and (max-width: 600px) {
+      .email-header {
+        padding: 30px 20px;
+      }
+      .email-header h1 {
+        font-size: 24px;
+      }
+      .email-body {
+        padding: 30px 20px;
+      }
+      .button {
+        padding: 14px 32px;
+        font-size: 15px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="email-wrapper">
+    <div class="email-container">
+      <div class="email-header">
+        <h1>{{subject}}</h1>
+      </div>
+      <div class="email-body">
+        <p>{{body}}</p>
+        <div class="button-wrapper">
+          <a href="{{actionBtnLink}}" class="button" style="color: #ffffff !important;">{{actionBtnText}}</a>
+        </div>
+      </div>
+      <div class="email-footer">
+        <p>This email was sent to you from our application. If you have any questions, please don't hesitate to contact us.</p>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Welcome!</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      padding: 40px 20px;
+      margin: 0;
+      line-height: 1.6;
+    }
+    .email-wrapper {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    .email-container {
+      background: #ffffff;
+      border-radius: 16px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      overflow: hidden;
+    }
+    .email-header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      padding: 40px 30px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .confetti {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      pointer-events: none;
+    }
+    .icon-wrapper {
+      width: 80px;
+      height: 80px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 50%;
+      margin: 0 auto 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(10px);
+      position: relative;
+      z-index: 1;
+    }
+    .icon-wrapper svg {
+      width: 40px;
+      height: 40px;
+      fill: #ffffff;
+    }
+    .email-header h1 {
+      color: #ffffff;
+      font-size: 32px;
+      font-weight: 700;
+      margin: 0 0 8px 0;
+      letter-spacing: -0.5px;
+      position: relative;
+      z-index: 1;
+    }
+    .welcome-name {
+      color: #fef08a;
+      font-size: 36px;
+      font-weight: 800;
+      margin: 0;
+      letter-spacing: -1px;
+      position: relative;
+      z-index: 1;
+    }
+    .email-body {
+      padding: 50px 30px;
+      text-align: center;
+    }
+    .welcome-message {
+      background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 32px;
+    }
+    .welcome-message p {
+      color: #2d3748;
+      font-size: 16px;
+      line-height: 1.8;
+      margin: 0;
+    }
+    .email-body p {
+      color: #4a5568;
+      font-size: 16px;
+      margin-bottom: 16px;
+    }
+    .otp-label {
+      font-size: 14px;
+      font-weight: 600;
+      color: #718096;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 16px;
+    }
+    .otp-container {
+      background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+      border: 2px dashed #cbd5e0;
+      border-radius: 12px;
+      padding: 30px;
+      margin: 24px 0;
+    }
+    .otp-code {
+      font-size: 48px;
+      font-weight: 700;
+      letter-spacing: 16px;
+      color: #667eea;
+      font-family: 'Courier New', monospace;
+      text-align: center;
+      margin: 0;
+      user-select: all;
+    }
+    .validity-info {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #fff5f5;
+      border: 1px solid #feb2b2;
+      color: #c53030;
+      padding: 12px 20px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      margin-top: 24px;
+    }
+    .validity-info svg {
+      width: 20px;
+      height: 20px;
+      fill: currentColor;
+    }
+    .divider {
+      height: 1px;
+      background: linear-gradient(to right, transparent, #e2e8f0, transparent);
+      margin: 32px 0;
+    }
+    .next-steps {
+      background: #f7fafc;
+      border-radius: 12px;
+      padding: 24px;
+      text-align: left;
+      margin-top: 32px;
+    }
+    .next-steps h3 {
+      color: #2d3748;
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 16px;
+      text-align: center;
+    }
+    .next-steps ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    .next-steps li {
+      color: #4a5568;
+      font-size: 14px;
+      line-height: 1.8;
+      padding: 8px 0 8px 28px;
+      position: relative;
+    }
+    .next-steps li:before {
+      content: "✓";
+      position: absolute;
+      left: 0;
+      color: #667eea;
+      font-weight: 700;
+      font-size: 16px;
+    }
+    .email-footer {
+      background: #f7fafc;
+      padding: 30px;
+      text-align: center;
+      border-top: 1px solid #e2e8f0;
+    }
+    .email-footer p {
+      color: #718096;
+      font-size: 14px;
+      margin: 0;
+    }
+    @media only screen and (max-width: 600px) {
+      .email-header {
+        padding: 30px 20px;
+      }
+      .email-header h1 {
+        font-size: 26px;
+      }
+      .welcome-name {
+        font-size: 30px;
+      }
+      .email-body {
+        padding: 40px 20px;
+      }
+      .otp-code {
+        font-size: 36px;
+        letter-spacing: 12px;
+      }
+      .otp-container {
+        padding: 24px 16px;
+      }
+      .welcome-message, .next-steps {
+        padding: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="email-wrapper">
+    <div class="email-container">
+      <div class="email-header">
+        <div class="icon-wrapper">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5zm0 18c-4.41 0-8-3.59-8-8V8.3l8-3.11 8 3.11V12c0 4.41-3.59 8-8 8z"/>
+            <circle cx="12" cy="12" r="3"/>
+          </svg>
+        </div>
+        <h1>Welcome to Our Platform,</h1>
+        <p class="welcome-name">{{name}}!</p>
+      </div>
+      <div class="email-body">
+        <div class="welcome-message">
+          <p>🎉 <strong>Congratulations!</strong> You're one step away from completing your registration. We're excited to have you join our community!</p>
+        </div>
+
+        <p class="otp-label">Your Verification Code</p>
+
+        <div class="otp-container">
+          <p class="otp-code">{{otp}}</p>
+        </div>
+
+        <div class="validity-info">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+          </svg>
+          This code expires in 3 minutes
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="next-steps">
+          <h3>What happens next?</h3>
+          <ul>
+            <li>Enter the verification code above to complete your registration</li>
+            <li>Set up your profile and preferences</li>
+            <li>Start exploring all the amazing features we have to offer</li>
+          </ul>
+        </div>
+      </div>
+      <div class="email-footer">
+        <p>Need help? Contact our support team anytime. We're here to help!</p>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

@@ -15,4 +15,14 @@ export default () => ({
     secret: process.env.JWT_SECRET,
     expiresIn: process.env.JWT_EXPIRES_IN,
   },
+  mail: {
+    host: process.env.MAIL_HOST,
+    port: parseInt(process.env.MAIL_PORT ?? '587', 10),
+    user: process.env.MAIL_USER,
+    pass: process.env.MAIL_PASS,
+    from: {
+      name: process.env.MAIL_FROM_NAME || 'Bakir Khata',
+      address: process.env.MAIL_FROM_ADDRESS || 'example@com',
+    },
+  },
 });

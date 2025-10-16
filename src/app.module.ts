@@ -9,6 +9,7 @@ import { AuthModule } from './auth/auth.module';
 import { JwtModule } from '@nestjs/jwt';
 import { CacheModule } from '@nestjs/cache-manager';
 import { redisStore } from 'cache-manager-redis-yet';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 
 @Module({
   imports: [
@@ -37,6 +38,7 @@ import { redisStore } from 'cache-manager-redis-yet';
       store: redisStore,
       ttl: 30 * 60 * 1000, // 30 minutes in milliseconds
     }),
+    EventEmitterModule.forRoot(),
     UsersModule,
     AuthModule,
   ],
