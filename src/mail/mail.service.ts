@@ -31,7 +31,7 @@ export class MailService {
   }
 
   async sendOtpMail(
-    name: any,
+    name: string,
     to: string,
     otp: { otp: string; validTill: Date },
   ) {
@@ -39,12 +39,24 @@ export class MailService {
     // Load and parse the template
     const templatePath = 'src/mail/templates/otp-mail.html';
     const template = await fs.readFile(templatePath, 'utf-8');
+    const appName = configuration().app.name;
+
+    // Format the valid until time in a human-readable way
+    const validTillDate = new Date(otp.validTill);
+    const now = new Date();
+    const diffInMinutes = Math.floor(
+      (validTillDate.getTime() - now.getTime()) / (1000 * 60),
+    );
+    const formattedValidTill = `${diffInMinutes} minutes (expires at ${validTillDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })})`;
+
     const parsedTemplate = template
+      .replace('{{name}}', name)
       .replace('{{otp}}', otp.otp)
-      .replace('{{validTill}}', otp.validTill.toLocaleString());
+      .replace('{{validTill}}', formattedValidTill)
+      .replace('{{appName}}', appName);
     // Mail options
     const mailOptions = {
-      from: configuration().app.name,
+      from: appName,
       to: to,
       subject: `Welcome ${name}, Your Verification Code is Here!`,
       html: parsedTemplate,
@@ -58,9 +70,12 @@ export class MailService {
     // Load and parse the template
     const templatePath = 'src/mail/templates/reset-mail.html';
     const template = await fs.readFile(templatePath, 'utf-8');
-    const parsedTemplate = template.replace('{{resetLink}}', resetLink);
+    const appName = configuration().app.name;
+    const parsedTemplate = template
+      .replace(/\{\{resetLink\}\}/g, resetLink)
+      .replace('{{appName}}', appName);
     const mailOptions = {
-      from: configuration().app.name,
+      from: appName,
       to: to,
       subject: 'Password Reset Request',
       html: parsedTemplate,

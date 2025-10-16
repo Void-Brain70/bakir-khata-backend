@@ -1,229 +1,107 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Password Reset</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Reset Your Password</title>
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      padding: 40px 20px;
-      margin: 0;
-      line-height: 1.6;
-    }
-    .email-wrapper {
-      max-width: 600px;
-      margin: 0 auto;
-    }
-    .email-container {
-      background: #ffffff;
-      border-radius: 16px;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-      overflow: hidden;
-    }
-    .email-header {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      padding: 40px 30px;
-      text-align: center;
-    }
-    .icon-wrapper {
-      width: 80px;
-      height: 80px;
-      background: rgba(255, 255, 255, 0.2);
-      border-radius: 50%;
-      margin: 0 auto 20px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      backdrop-filter: blur(10px);
-    }
-    .icon-wrapper svg {
-      width: 40px;
-      height: 40px;
-      fill: #ffffff;
-    }
-    .email-header h1 {
-      color: #ffffff;
-      font-size: 28px;
-      font-weight: 700;
-      margin: 0;
-      letter-spacing: -0.5px;
-    }
-    .email-body {
-      padding: 50px 30px;
-      text-align: center;
-    }
-    .email-body p {
-      color: #4a5568;
-      font-size: 16px;
-      line-height: 1.8;
-      margin-bottom: 16px;
-    }
-    .email-body p.intro {
-      font-size: 18px;
-      color: #2d3748;
-      font-weight: 500;
-      margin-bottom: 24px;
-    }
-    .button-wrapper {
-      margin: 32px 0;
-    }
-    .button {
-      display: inline-block;
-      padding: 16px 40px;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: #ffffff;
-      text-decoration: none;
-      border-radius: 8px;
-      font-weight: 600;
-      font-size: 16px;
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
-    }
-    .button:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
-    }
-    .validity-info {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      background: #fff5f5;
-      border: 1px solid #feb2b2;
-      color: #c53030;
-      padding: 12px 20px;
-      border-radius: 8px;
-      font-size: 14px;
-      font-weight: 600;
-      margin-top: 24px;
-    }
-    .validity-info svg {
-      width: 20px;
-      height: 20px;
-      fill: currentColor;
-    }
-    .divider {
-      height: 1px;
-      background: linear-gradient(to right, transparent, #e2e8f0, transparent);
-      margin: 32px 0;
-    }
-    .alternative-section {
-      background: #f7fafc;
-      border-radius: 8px;
-      padding: 20px;
-      margin-top: 24px;
-    }
-    .alternative-section p {
-      font-size: 14px;
-      color: #4a5568;
-      margin-bottom: 12px;
-    }
-    .link-text {
-      word-break: break-all;
-      background: #edf2f7;
-      padding: 12px;
-      border-radius: 4px;
-      font-family: 'Courier New', monospace;
-      font-size: 12px;
-      color: #2d3748;
-      margin-top: 8px;
-    }
-    .security-note {
-      background: #f7fafc;
-      border-left: 4px solid #667eea;
-      padding: 16px 20px;
-      margin-top: 32px;
-      text-align: left;
-      border-radius: 4px;
-    }
-    .security-note p {
-      color: #4a5568;
-      font-size: 14px;
-      margin: 0;
-      line-height: 1.6;
-    }
-    .security-note strong {
-      color: #2d3748;
-    }
-    .email-footer {
-      background: #f7fafc;
-      padding: 30px;
-      text-align: center;
-      border-top: 1px solid #e2e8f0;
-    }
-    .email-footer p {
-      color: #718096;
-      font-size: 14px;
-      margin: 0;
-    }
-    @media only screen and (max-width: 600px) {
-      .email-header {
-        padding: 30px 20px;
+      body {
+          font-family: Arial, sans-serif;
+          color: #333;
+          line-height: 1.6;
+          background-color: #f4f4f4;
+          margin: 0;
+          padding: 20px;
       }
-      .email-header h1 {
-        font-size: 24px;
+
+      .container {
+          max-width: 600px;
+          margin: 0 auto;
+          background: #fff;
+          padding: 40px;
+          border-radius: 10px;
+          box-shadow: 0 2px 4px rgba(0,0,0,0.1);
       }
-      .email-body {
-        padding: 40px 20px;
+
+      h2 {
+          color: #2c3e50;
+          margin-bottom: 20px;
       }
-      .button {
-        padding: 14px 32px;
-        font-size: 15px;
+
+      .reset-button {
+          display: inline-block;
+          background: #4CAF50;
+          color: #ffffff;
+          padding: 15px 40px;
+          margin: 25px 0;
+          text-decoration: none;
+          border-radius: 5px;
+          font-size: 16px;
+          font-weight: bold;
+          text-align: center;
       }
-      .alternative-section {
-        padding: 16px;
+
+      .reset-link-box {
+          background: #f8f9fa;
+          border-left: 4px solid #4CAF50;
+          padding: 15px;
+          margin: 25px 0;
+          word-break: break-all;
+          font-size: 13px;
+          color: #666;
       }
-    }
+
+      .validity {
+          font-size: 13px;
+          color: #e74c3c;
+          margin-top: 10px;
+          text-align: start;
+          font-weight: 500;
+      }
+
+      .security-note {
+          background: #fff3cd;
+          border-left: 4px solid #ffc107;
+          padding: 15px;
+          margin-top: 25px;
+          font-size: 14px;
+          color: #856404;
+      }
+
+      .footer {
+          margin-top: 30px;
+          padding-top: 20px;
+          border-top: 1px solid #eee;
+          font-size: 14px;
+          color: #666;
+      }
   </style>
 </head>
 <body>
-  <div class="email-wrapper">
-    <div class="email-container">
-      <div class="email-header">
-        <div class="icon-wrapper">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-            <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zM9 6c0-1.66 1.34-3 3-3s3 1.34 3 3v2H9V6zm9 14H6V10h12v10zm-6-3c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2z"/>
-          </svg>
-        </div>
-        <h1>Password Reset Request</h1>
-      </div>
-      <div class="email-body">
-        <p class="intro">We received a request to reset your password.</p>
+<div class="container">
+  <h2>Password Reset Request</h2>
 
-        <p>Click the button below to create a new password for your account. This link will expire in 1 hour for security reasons.</p>
+  <p>We received a request to reset your password.</p>
 
-        <div class="button-wrapper">
-          <a href="{{resetLink}}" class="button" style="color: #ffffff !important;">Reset My Password</a>
-        </div>
+  <p>Click the button below to reset your password:</p>
 
-        <div class="validity-info">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
-          </svg>
-          This link expires in 1 hour
-        </div>
+  <a href="{{resetLink}}" class="reset-button">Reset Password</a>
 
-        <div class="divider"></div>
+  <p class="validity">⏰ This link expires in 1 hour</p>
 
-        <div class="alternative-section">
-          <p><strong>Button not working?</strong> Copy and paste this link into your browser:</p>
-          <div class="link-text">{{resetLink}}</div>
-        </div>
+  <p>If the button doesn't work, copy and paste this link into your browser:</p>
 
-        <div class="security-note">
-          <p><strong>Security Notice:</strong> If you didn't request a password reset, please ignore this email. Your password will remain unchanged. We recommend reviewing your account security if you receive this email unexpectedly.</p>
-        </div>
-      </div>
-      <div class="email-footer">
-        <p>This is an automated security message. Please do not reply to this email.</p>
-      </div>
-    </div>
+  <div class="reset-link-box">
+    {{resetLink}}
   </div>
+
+  <div class="security-note">
+    <strong>Security Notice:</strong> If you didn't request a password reset, please ignore this email. Your password will remain unchanged.
+  </div>
+
+  <div class="footer">
+    <p><strong>Best Regards,</strong><br>{{appName}} Team</p>
+  </div>
+</div>
 </body>
 </html>
